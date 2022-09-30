@@ -18,6 +18,10 @@ namespace AureWebApiDemo.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// This endpoint returns 5 random weather objects
+        /// </summary>
+        /// <returns></returns>
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
