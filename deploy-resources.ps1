@@ -64,7 +64,7 @@ $storageAccountName = 'ramtinstorageacc'
 $appServicePlanName = 'ramtinAppServicePlan'
 $functionappName = 'ramtinFuncApp111'
 $webappName = 'ramtinWebApp111'
-$cosmosNamespace = 'ramtincosmosnameSpace'
+$cosmosNamespace = 'ramtincosmosnamespace'
 
 # If you don't have the latest az cli, then az functionapp step might fail.
 # If so, then please remove the # from the next line.
