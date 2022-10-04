@@ -22,16 +22,7 @@ Write-Host "Initialize local deployment" -ForegroundColor Blue
 # Login and set the sub to the one we want to use from Azure Portal
 #az logout
 #az login #--allow-no-subscriptions
-#az account set --subscription "7ca35eb7-159a-480c-afe7-a2e4464eaee9"#"d6b4bc51-75a6-4eb4-8cf2-4114beceec76"
-
-#$output = az vm create `
-#--name "ramtinstestvm" `
-#--resource-group "rg_ramtin" `
-#--admin-password "P@sssssw8rd27!!!" `
-#--admin-username "adminazure" `
-#--image "UbuntuLTS"
-#Throw-WhenError -output $output
-
+az account set --subscription "d6b4bc51-75a6-4eb4-8cf2-4114beceec76"  
 
 # From now on we define and create our ressources
 
@@ -62,12 +53,12 @@ Write-Host "Initialize local deployment" -ForegroundColor Blue
 # AZ CLI is installed
 # When deploying the script with Powershell you need to enter the following command in order to be able to run the script: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy  ByPass'
 # When the script has run, then go to the portal and check inside your resource group, that the deployment has been successful.
-$resourceGroup = 'az-kursus-test'
-$storageAccountName = 'chris1test'
-$appServicePlanName = 'cbrNewAppPlan'
-$functionappName = 'chris1test'
-$webappName = 'cbrWebapp'
-$cosmosNamespace = 'cbrcosmostest'
+$resourceGroup = 'rg_ramtin'
+$storageAccountName = 'ramtinstorageacc'
+$appServicePlanName = 'ramtinAppServicePlan'
+$functionappName = 'ramtinFuncApp111'
+$webappName = 'ramtinWebApp111'
+$cosmosNamespace = 'ramtinCosmosNameSpace111'
 
 az upgrade
 
