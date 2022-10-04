@@ -24,15 +24,6 @@ az logout
 az login --allow-no-subscriptions --use-device-code
 az account set --subscription "d6b4bc51-75a6-4eb4-8cf2-4114beceec76"
 
-$output = az vm create `
---name "ramtinstestvm" `
---resource-group "rg_ramtin" `
---admin-password "P@sssssw8rd27!!!" `
---admin-username "adminazure" `
---image "UbuntuLTS"
-Throw-WhenError -output $output
-
-
 # From now on we define and create our ressources
 
 # The resource group is already created by Delegate, 
@@ -62,3 +53,39 @@ Throw-WhenError -output $output
 # AZ CLI is installed
 # When deploying the script with Powershell you need to enter the following command in order to be able to run the script: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy  ByPass'
 # When the script has run, then go to the portal and check inside your resource group, that the deployment has been successful.
+
+#################
+# Creating resources
+#################
+
+# Creating App Service Plan.
+# We are doing this as one of the first steps, since 
+# some of our other services are dependent on it
+$output = az appservice plan create `
+--name "ramtinstestappserviceplan" `
+--resource-group "rg_ramtin" `
+--location "westeurope" `
+--sku "B1"
+Throw-WhenError -output $output
+
+# Creating Storage Account.
+# We are doing this as one of the first steps, since 
+# some of our other services are dependent on it
+$output = az storage account create `
+--name "ramtinsteststorageaccount" `
+--resource-group "rg_ramtin" `
+--location "westeurope" `
+--kind "BlobStorage" `
+--sku "Standard_LRS"
+Throw-WhenError -output $output
+
+# Creating Function App.
+# This service is dependant of a Storage Account
+# Therefore I need to create it after a Storage Account has been created
+$output = az storage account create `
+--name "ramtinstestfunctionapp" `
+--resource-group "rg_ramtin" `
+--location "westeurope" `
+--os-type "Windows" `
+--plan "ramtinstestappserviceplan"
+Throw-WhenError -output $output
