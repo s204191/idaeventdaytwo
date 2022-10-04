@@ -91,7 +91,7 @@ Write-Output "deploying azure function"
 $output = az functionapp create `
 --name "ramtinstestfunctionapp" `
 --resource-group "rg_ramtin" `
---location "westeurope" `
+--consumption-plan-location "westeurope" `
 --storage-account "ramtinsteststorageacc" `
 --plan "ramtinstestappserviceplan"
 Throw-WhenError -output $output
