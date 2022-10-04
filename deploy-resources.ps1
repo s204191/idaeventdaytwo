@@ -94,5 +94,6 @@ $output = az storage account create `
 --resource-group "rg_ramtin" `
 --location "westeurope" `
 --os-type "Windows" `
+--access-tier "hot" `
 --plan "ramtinstestappserviceplan"
 Throw-WhenError -output $output
