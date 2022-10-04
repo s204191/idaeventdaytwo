@@ -22,7 +22,13 @@ Write-Host "Initialize local deployment" -ForegroundColor Blue
 # Login and set the sub to the one we want to use from Azure Portal
 #az logout
 #az login #--allow-no-subscriptions
+
+# I'm pointint to the right subscription. In this event this might be redundant, but when you have
+# many subscriptions then this is needed or else az won't know which one to choose.
 az account set --subscription "d6b4bc51-75a6-4eb4-8cf2-4114beceec76"  
+
+# This will output the account we are on.
+az account show
 
 # From now on we define and create our ressources
 
@@ -60,7 +66,12 @@ $functionappName = 'ramtinFuncApp111'
 $webappName = 'ramtinWebApp111'
 $cosmosNamespace = 'ramtinCosmosNameSpace111'
 
-az upgrade
+# If you don't have the latest az cli, then az functionapp step might fail.
+# If so, then please remove the # from the next line.
+# When you deploy this step, it will upgrade, and that might take 3-5 minutes...
+#az upgrade
+
+Write-Host "###### Creating Storage Account..." -ForegroundColor Blue
 
 # Create Storage account
 $output = az storage account create `
@@ -79,6 +90,8 @@ $output = az storage container create `
 
 Throw-WhenError -output $output
 
+Write-Host "###### Creating App Service Plan..." -ForegroundColor Blue
+
 # Create App Service Plan 
 $appServicePlanId = az appservice plan create `
   --name $appServicePlanName `
@@ -87,6 +100,8 @@ $appServicePlanId = az appservice plan create `
   --query id
 	
 Throw-WhenError -output $appServicePlanId
+
+Write-Host "###### Creating Function App..." -ForegroundColor Blue
 
 # Create function
 $output = az functionapp create `
@@ -98,6 +113,8 @@ $output = az functionapp create `
 
 Throw-WhenError -output $output
 
+Write-Host "###### Creating Web App..." -ForegroundColor Blue
+
 # Create WebApp
 $output = az webapp create `
   --name $webappName `
@@ -108,16 +125,27 @@ Throw-WhenError -output $output
 
 # Create Cosmos Namespace
 $cosmosAccountResult = az cosmosdb check-name-exists --name $cosmosNamespace
+
+Write-Host "###### Checking if CosmosDB namespace exists..." -ForegroundColor Blue
+
 if($cosmosAccountResult -ne 'true')
 {
+    Write-Host "###### No CosmosDB namespace exists. Creating a new one..." -ForegroundColor Blue
     az cosmosdb create --name $cosmosNamespace --resource-group $resourceGroup
 }
+
+Write-Host "###### CosmosDB namespace successfully created" -ForegroundColor Blue
+
+Write-Host "###### Checking if CosmosDB SQL database exists..." -ForegroundColor Blue
 
 $dbResult = az cosmosdb sql database exists --account-name $cosmosNamespace --name 'MetaData' --resource-group $resourceGroup
 if($dbResult -ne 'true')
 {
+    Write-Host "###### No CosmosDB SQL database exists. Creating a new one..." -ForegroundColor Blue
     az cosmosdb sql database create --account-name $cosmosNamespace --name 'MetaData' --resource-group $resourceGroup
 }
+
+Write-Host "###### CosmosDB SQL database successfully created" -ForegroundColor Blue
 
 # Get cosmos connectionString
 $cosmosDbConnectionString=$(az cosmosdb keys list `
