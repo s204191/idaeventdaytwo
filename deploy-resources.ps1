@@ -80,7 +80,6 @@ $output = az storage account create `
 --name "ramtinsteststorageacc" `
 --resource-group "rg_ramtin" `
 --location "westeurope" `
---kind "BlobStorage" `
 --sku "Standard_LRS"
 Throw-WhenError -output $output
 
@@ -89,11 +88,10 @@ Write-Output "deploying azure function"
 # Creating Function App.
 # This service is dependant of a Storage Account
 # Therefore I need to create it after a Storage Account has been created
-$output = az storage account create `
+$output = az functionapp create `
 --name "ramtinstestfunctionapp" `
 --resource-group "rg_ramtin" `
---access-tier "Hot" `
 --location "westeurope" `
---os-type "Windows" `
+--storage-account "ramtinsteststorageacc" `
 --plan "ramtinstestappserviceplan"
 Throw-WhenError -output $output
