@@ -58,10 +58,13 @@ jobs:
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet build --configuration Release --output ./output
           popd
-          
+      
+      # NOTICE: We need to get the Publish Profile from our Function App in Azure
+      # Please follow this guide:
+      # https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions?tabs=applevel#generate-deployment-credentials
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         with:
           app-name: 'ramtinFuncApp111'          
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile:  '${{ secrets.AZURE_CREDENTIALS }}'
+          publish-profile:  '${{ secrets.FUNCTION_PUBLISH_PROFILE }}'
