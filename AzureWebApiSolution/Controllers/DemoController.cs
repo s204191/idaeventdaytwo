@@ -23,6 +23,7 @@ namespace AzureWebApiSolution.Controllers
             _cosmosClient = new CosmosClient(_configuration["CosmosConnection"]);
         }
 
+        // Here we have the endpoint, where we take a string as an input and output it
         [HttpGet]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         public IActionResult GetString([FromQuery] string str)
@@ -31,6 +32,7 @@ namespace AzureWebApiSolution.Controllers
             return Ok($"Received {str} from http request. timestamp: {DateTime.Now}");
         }
 
+        // Here we have the endpoint, where we take a two integers as an input and output it
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public IActionResult GetInt([FromQuery] int nr1, int nr2)
@@ -39,6 +41,7 @@ namespace AzureWebApiSolution.Controllers
             return Ok($"Received {nr1} & {nr2} from http request. {nr1} + {nr2} = {nr1 + nr2} Timestamp: {DateTime.Now}");
         }
 
+        // Here we have the endpoint which resizes an image. Note that the logic is almost identical to the one from Day 1.
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> ResizeImage(string fileName, IFormFile formFile)
@@ -67,6 +70,7 @@ namespace AzureWebApiSolution.Controllers
             }
         }
 
+        // Here we have the endpoint which uploads an image to our Storage Account in Azure - into the "images" container.
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadImage(string fileName, IFormFile formFile)
