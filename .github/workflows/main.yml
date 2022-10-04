@@ -1,0 +1,51 @@
+# This is a basic workflow to help you get started with Actions
+
+name: MyFirstCI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-and-deploy-resources:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      # I need to login to Azure Portal first. I'll to it with using my Service Principal info.
+      # This needs to be kept very secret. Therefore I've saved the entire JSON-output inside
+      # Settings/Secrets/Actions/New Repository Secret
+      # I've named mine AZURE_CREDENTIALS, but you can call yours whatever you want.
+      # The credentials consists of clientId and clientSecret (and other stuff to).
+      # But when I authorize with this info, it tells Azure that the combined clientId and -secret
+      # wants to login. And the creator of the JSON-object has given you some permissions.
+      # Fx you are allowed to deploy ressources to your resource group.
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Here I will deploy my resources. Note I'm using inlineScripts. This is not good practice.
+      # Especially not if there are many resources / commands. A better way is to use a script.
+      # We will do that in the next exercise.
+      # If you want, then go ahead and add a resource after the "az function app create"
+      # Some of them are a bit tricky, but why not try to create a webapp? Google "az webapp create" and try it out
+      - uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+              az account set --subscription 'd6b4bc51-75a6-4eb4-8cf2-4114beceec76'
+              az account show
+              az storage account create --name 'rantestingstrage' --location 'westeurope' --resource-group rg_ramtin --sku 'Standard_LRS' --access-tier 'Hot'
+              az appservice plan create --name 'rantestappsrviceplan' --resource-group rg_ramtin --location 'westeurope' --sku 'B1'
+              az functionapp create --name 'rantestfncapp' --resource-group rg_ramtin --storage-account 'rantestingstrage' --plan 'rantestappsrviceplan'
