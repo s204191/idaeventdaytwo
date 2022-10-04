@@ -20,8 +20,9 @@ function Throw-WhenError {
 Write-Host "Initialize local deployment" -ForegroundColor Blue
 
 # Login and set the sub to the one we want to use from Azure Portal
-az logout
-az login --allow-no-subscriptions --use-device-code
+#### NOTICE: I've commented this part out since I'm using a Action instead
+# az logout
+# az login --allow-no-subscriptions # --use-device-code
 az account set --subscription "d6b4bc51-75a6-4eb4-8cf2-4114beceec76"
 
 # From now on we define and create our ressources
@@ -58,6 +59,8 @@ az account set --subscription "d6b4bc51-75a6-4eb4-8cf2-4114beceec76"
 # Creating resources
 #################
 
+Write-Output "deploying appservice plan" 
+
 # Creating App Service Plan.
 # We are doing this as one of the first steps, since 
 # some of our other services are dependent on it
@@ -67,6 +70,8 @@ $output = az appservice plan create `
 --location "westeurope" `
 --sku "B1"
 Throw-WhenError -output $output
+
+Write-Output "deploying storage account"
 
 # Creating Storage Account.
 # We are doing this as one of the first steps, since 
@@ -78,6 +83,8 @@ $output = az storage account create `
 --kind "BlobStorage" `
 --sku "Standard_LRS"
 Throw-WhenError -output $output
+
+Write-Output "deploying azure function"
 
 # Creating Function App.
 # This service is dependant of a Storage Account
