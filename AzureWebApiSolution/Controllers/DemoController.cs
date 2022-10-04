@@ -1,22 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Drawing.Imaging;
-using Azure.Storage.Blobs;
-using System.Drawing;
-using Microsoft.Azure.Cosmos;
+﻿using Azure.Storage.Blobs;
 using AzureWebApiSolution.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace AzureWebApiSolution.Controllers
-{    
+{
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class DemoController : ControllerBase
     {
         private readonly ILogger<DemoController> _logger;
         private readonly CosmosClient _cosmosClient;
-        public DemoController(ILogger<DemoController> logger)
+        private readonly IConfiguration _configuration;
+        private readonly BlobContainerClient _blobContainerClient;
+        public DemoController(ILogger<DemoController> logger, IConfiguration config)
         {
             _logger = logger;
-            //_cosmosClient = new CosmosClient(Environment.GetEnvironmentVariable("CosmosConnection"));
+            _configuration = config;
+            _blobContainerClient = new BlobContainerClient(_configuration["AzureWebJobsStorage"], "images");
+            _cosmosClient = new CosmosClient(_configuration["CosmosConnection"]);
         }
 
         [HttpGet]
@@ -41,9 +45,6 @@ namespace AzureWebApiSolution.Controllers
         {
             try
             {
-                //TODO: Fix mig
-                //var formdata = await req.ReadFormAsync();
-                //var file = req.Form.Files["file"];
                 var formcollection = await Request.ReadFormAsync();
                 var file = formcollection.Files.FirstOrDefault();
 
@@ -55,12 +56,30 @@ namespace AzureWebApiSolution.Controllers
                 resized.Save(imageStream, ImageFormat.Jpeg);
                 imageStream.Position = 0;
 
-                var blobService = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
-                var blobClient = new BlobContainerClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "Images");
-                var blob = blobClient.GetBlobClient(fileName);
+                var blob = _blobContainerClient.GetBlobClient(fileName + ".png");
                 await blob.UploadAsync(imageStream);
 
-                return Ok(file.FileName + " - " + file.Length.ToString() + " bytes");
+                return Ok($"{file.FileName} - Uploaded as: {fileName}.png - size: {file.Length} bytes");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImage(string fileName, IFormFile formFile)
+        {
+            try
+            {
+                var formcollection = await Request.ReadFormAsync();
+                var file = formcollection.Files.FirstOrDefault();
+              
+                var blob = _blobContainerClient.GetBlobClient(fileName + ".png");
+                await blob.UploadAsync(file.OpenReadStream());
+
+                return Ok($"{file.FileName} - Uploaded as: {fileName}.png - size: {file.Length} bytes");
             }
             catch (Exception ex)
             {
@@ -82,10 +101,10 @@ namespace AzureWebApiSolution.Controllers
                     PartitionKeyPath = "/id",
                     DefaultTimeToLive = -1,
 
-                }, ThroughputProperties.CreateAutoscaleThroughput(1000));
+                });
 
                 //Create new object in Cosmos from request
-                var response = await containerLink.Container.UpsertItemAsync(metadata, new PartitionKey(metadata.Id));
+                var response = await containerLink.Container.UpsertItemAsync(metadata, new PartitionKey(metadata.BilledeId));
                 
                 return Ok(response);
             }
@@ -109,7 +128,7 @@ namespace AzureWebApiSolution.Controllers
                     PartitionKeyPath = "/id",
                     DefaultTimeToLive = -1,
 
-                }, ThroughputProperties.CreateAutoscaleThroughput(1000));
+                });
 
                 //Get specifiedId (if existing)
                 var sqlQuery = $"SELECT * FROM c WHERE c.Id = '{billedeId}'"; // <-- Query to specify search
