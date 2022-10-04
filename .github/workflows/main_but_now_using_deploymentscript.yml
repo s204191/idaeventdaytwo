@@ -34,18 +34,11 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Here I will deploy my resources. Note I'm using inlineScripts. This is not good practice.
-      # Especially not if there are many resources / commands. A better way is to use a script.
-      # We will do that in the next exercise.
-      # If you want, then go ahead and add a resource after the "az function app create"
-      # Some of them are a bit tricky, but why not try to create a webapp? Google "az webapp create" and try it out
-      - uses: azure/CLI@v1
+          enable-AzPSSession: true
+          
+      - name: Deploy resources
+        uses: azure/powershell@v1
         with:
-          azcliversion: 2.30.0
           inlineScript: |
-              az account set --subscription 'd6b4bc51-75a6-4eb4-8cf2-4114beceec76'
-              az account show
-              az storage account create --name 'rantestingstrage' --location 'westeurope' --resource-group rg_ramtin --sku 'Standard_LRS' --access-tier 'Hot'
-              az appservice plan create --name 'rantestappsrviceplan' --resource-group rg_ramtin --location 'westeurope' --sku 'B1'
-              az functionapp create --name 'rantestfncapp' --resource-group rg_ramtin --storage-account 'rantestingstrage' --plan 'rantestappsrviceplan'
+            .\deploy-resources.ps1
+          azPSVersion: "latest"
