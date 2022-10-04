@@ -1,0 +1,67 @@
+# This is a basic workflow to help you get started with Actions
+
+name: MyFunctionAppDeployWorkflow
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-and-deploy-resources:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      # I need to login to Azure Portal first. I'll to it with using my Service Principal info.
+      # This needs to be kept very secret. Therefore I've saved the entire JSON-output inside
+      # Settings/Secrets/Actions/New Repository Secret
+      # I've named mine AZURE_CREDENTIALS, but you can call yours whatever you want.
+      # The credentials consists of clientId and clientSecret (and other stuff to).
+      # But when I authorize with this info, it tells Azure that the combined clientId and -secret
+      # wants to login. And the creator of the JSON-object has given you some permissions.
+      # Fx you are allowed to deploy ressources to your resource group.
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Deploy resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\deploy-resources-function-plan-storage-webapp.ps1
+          azPSVersion: "latest"
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+          
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'ramtinFuncApp111'          
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          publish-profile:  '${{ secrets.AZURE_CREDENTIALS }}'
