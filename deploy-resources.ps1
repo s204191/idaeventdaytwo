@@ -77,7 +77,7 @@ Write-Output "deploying storage account"
 # We are doing this as one of the first steps, since 
 # some of our other services are dependent on it
 $output = az storage account create `
---name "ramtinsteststorageaccount" `
+--name "ramtinsteststorageacc" `
 --resource-group "rg_ramtin" `
 --location "westeurope" `
 --kind "BlobStorage" `
