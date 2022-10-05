@@ -21,7 +21,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Publish
+        run: dotnet publish AzureWebApiSolution/AzureWebApiSolution.csproj -c Release -o AzureWebApiSolutionpackage
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
@@ -35,3 +46,15 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!         
         
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2.0.8
+        with:
+          name: AzureWebApiSolutionpackage
+          path: AzureWebApiSolutionpackage
+          
+      - name: Deploy web app
+        id: deploywebapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ramtinWebApp111
+          package: AzureWebApiSolutionpackage          
