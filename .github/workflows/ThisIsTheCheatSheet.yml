@@ -1,0 +1,95 @@
+# This is a basic workflow to help you get started with Actions
+
+name: MyFirstWorkFlowDeployingAFunction
+
+#env:
+#  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+#  DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v3
+
+#      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+#        uses: actions/setup-dotnet@v2
+#        with:
+#          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+
+      # Notice here I'm building and releasing my solution.
+      # This allows me to use the packages - fx from the Function or the Webapp
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+          
+      # I need to login to Azure Portal first. I'll to it with using my Service Principal info.
+      # This needs to be kept very secret. Therefore I've saved the entire JSON-output inside
+      # Settings/Secrets/Actions/New Repository Secret
+      # I've named mine AZURE_CREDENTIALS, but you can call yours whatever you want.
+      # The credentials consists of clientId and clientSecret (and other stuff to).
+      # But when I authorize with this info, it tells Azure that the combined clientId and -secret
+      # wants to login. And the creator of the JSON-object has given you some permissions.
+      # Fx you are allowed to deploy ressources to your resource group.
+      - uses: azure/login@v1
+      # please fill in the missing spots
+
+      # Here I want to deploy my resources
+      # I'm using the Action 'azure/powershell@v1'
+      # and then I point it to my deployment-script.
+      - name: Deploy resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            .\<myDeploymentScriptFileName>.ps1
+          azPSVersion: "latest"
+          
+          # after we've deployed our resources we would like to deploy our packages also
+          # I want to publish the artifacts I've created in the
+          # 'Resolve Project Dependencies Using Dotnet' step
+          # One is a Function
+          # One is a webapp
+          # Please start with the Function only. Validate and the proceed to the WebApp
+
+
+      # NOTICE: We need to get the Publish Profile from our Function App in Azure
+      # Please follow this guide:
+      # https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions?tabs=applevel#generate-deployment-credentials
+      #- name: 'Run Azure Functions Action And Deploy To Portal'
+      #  uses: Azure/functions-action@v1
+      #  id: SomeRandomId
+      #  with:
+      #    app-name: 'ramtinFuncApp111' # replace this one       
+      #    package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+      #    publish-profile:  '${{ secrets.FUNCTION_PUBLISH_PROFILE }}'
+
+      # NOTICE: Here we need a Publish Profile again. This time for our Web App.
+      # Procedure is quite the same, but notice we are using another action this time
+      # It's called "azure/webapps-deploy@2"
+      # I found it by Googling 'azure webapp github actions'
+      # It gave me this result: https://github.com/marketplace/actions/azure-webapp
+      # And from there I followed the example.
+      #- name: 'Run Azure webapp deploy action using publish profile credentials'
+      #  uses: azure/webapps-deploy@v2
+      #  with:
+      #    app-name: 'ramtinWebApp111'
+      #    publish-profile: ${{ secrets.APPSERVICE_PUBLISH_PROFILE }} 23#
