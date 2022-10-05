@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: MyFirstWorkFlowDeployingAFunction
+name: ThisIsTheCheatSheetFlow
 
 #env:
 #  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
