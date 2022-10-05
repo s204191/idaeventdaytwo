@@ -52,7 +52,7 @@ jobs:
       # Fx you are allowed to deploy ressources to your resource group.
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS_TWO }}
           enable-AzPSSession: true
 
       # Here I want to deploy my resources
