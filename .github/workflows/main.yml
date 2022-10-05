@@ -25,12 +25,13 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: echo Hello, world!
+        run: logging in!!
 
-Write-Host "####### Trying to login!"       
-
-- uses: azure/login@v1
+      - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-Write-Host "####### Login completed!"
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: logged in!!          
+        
