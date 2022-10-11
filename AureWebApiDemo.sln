@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureWebApiSolution", "Azur
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageResizer", "ImageResizer\ImageResizer.csproj", "{2E152AF9-424D-4880-A518-A1563107416F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventhubDemo", "EventhubDemo\EventhubDemo.csproj", "{917CAFAA-9B7A-4110-8830-5373C8C76EFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventhubDemo", "EventhubDemo\EventhubDemo.csproj", "{917CAFAA-9B7A-4110-8830-5373C8C76EFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestionFunc", "IngestionFunc\IngestionFunc.csproj", "{A5837214-E15D-44C5-836A-EFE553EFF798}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{917CAFAA-9B7A-4110-8830-5373C8C76EFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{917CAFAA-9B7A-4110-8830-5373C8C76EFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{917CAFAA-9B7A-4110-8830-5373C8C76EFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5837214-E15D-44C5-836A-EFE553EFF798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5837214-E15D-44C5-836A-EFE553EFF798}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5837214-E15D-44C5-836A-EFE553EFF798}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5837214-E15D-44C5-836A-EFE553EFF798}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
