@@ -12,7 +12,7 @@ namespace EventhubDemo
     public static class EventhubTrigger
     {
         [FunctionName("ReceiveEventhubevent")]
-        public static async Task Run([EventHubTrigger("cbreventhub", Connection = "AzureWebJobsEventHub", ConsumerGroup = "cbr"),] string myEventHubMessage, ILogger log)
+        public static async Task Run([EventHubTrigger("oliverniklas", Connection = "AzureWebJobsEventHub", ConsumerGroup = "niklasconsumer"),] string myEventHubMessage, ILogger log)
         {
             log.LogInformation($"C# function triggered to process a message: {myEventHubMessage}");
 
